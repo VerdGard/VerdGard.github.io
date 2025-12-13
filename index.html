@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>星尘拾光 - 记录代码与生活的碎片</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --accent: #2dd4bf;
+      --bg: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 48rem;
+      margin: auto;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    header img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    header h1 {
+      font-size: 1.5rem;
+    }
+    header p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    nav {
+      margin-bottom: 2rem;
+    }
+    nav a {
+      margin-right: 1rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    article {
+      margin-bottom: 2.5rem;
+    }
+    article h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+    article time {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+    article .tags {
+      margin-top: 0.5rem;
+    }
+    article .tags span {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      margin-right: 0.4rem;
+    }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://picsum.photos/120/120?random=42" alt="avatar" />
+    <div>
+      <h1>星尘拾光</h1>
+      <p>记录代码与生活的碎片</p>
+    </div>
+  </header>
+
+  <nav>
+    <a href="#">首页</a>
+    <a href="#archive">归档</a>
+    <a href="#about">关于</a>
+    <a href="#friends">友链</a>
+  </nav>
+
+  <main>
+    <article>
+      <h2>用 30 行 Python 写一张“噪声诗”</h2>
+      <time>2025-12-13</time>
+      <p>把 Perlin 噪声变成汉字，让算法替我写一首不会重样的诗……</p>
+      <div class="tags">
+        <span>Python</span><span>创意编程</span><span>噪声</span>
+      </div>
+    </article>
+
+    <article>
+      <h2>在地铁里读完的《小王子》</h2>
+      <time>2025-12-10</time>
+      <p>通勤的 17 站路，刚好够玫瑰与狐狸讲完他们的故事。</p>
+      <div class="tags">
+        <span>读书笔记</span><span>碎片时间</span>
+      </div>
+    </article>
+
+    <article>
+      <h2>给博客加一只随机猫</h2>
+      <time>2025-12-05</time>
+      <p>每次刷新页面，页脚都会蹦出一只新猫，代码只有三行。</p>
+      <div class="tags">
+        <span>前端</span><span>猫</span><span>彩蛋</span>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    © 2025 星尘拾光 • 构建于午后一杯拿铁
+  </footer>
+</body>
+</html>

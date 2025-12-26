@@ -1,231 +1,138 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>应用详情</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>应用详情 - VerdGard</title>
+<style>
+/* 全局渐变流动 */
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:linear-gradient(-45deg,#667eea,#764ba2,#3a1c71,#2a9d8f);
+  background-size:400% 400%;
+  animation:gradFlow 15s ease infinite;
+  padding:20px;
+}
+@keyframes gradFlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+/* 雪花 */
+.snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.snow span{position:absolute;width:6px;height:6px;background:#fff;border-radius:50%;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(100vh) rotate(360deg);opacity:0}}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-        }
+/* 内容区 */
+.container{max-width:800px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:20px;padding:40px;position:relative;z-index:2;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.back-btn{display:inline-block;margin-bottom:30px;color:#667eea;text-decoration:none;font-weight:500}
+.back-btn:hover{color:#764ba2}
+.app-header{text-align:center;margin-bottom:40px}
+.app-icon{width:120px;height:120px;border-radius:25px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.app-title{font-size:36px;color:#333;margin-bottom:10px}
+.app-version{color:#666}
+.app-screenshots{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin:40px 0}
+.screenshot{width:100%;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.1);transition:transform .3s}
+.screenshot:hover{transform:scale(1.05)}
+.app-description{margin:30px 0;line-height:1.8;color:#555}
+.app-features{margin:30px 0}
+.app-features h3{color:#333;margin-bottom:15px;font-size:24px}
+.feature-list{list-style:none;padding-left:0}
+.feature-list li{padding:10px 0;padding-left:30px;position:relative;color:#555}
+.feature-list li:before{content:"✓";position:absolute;left:0;color:#667eea;font-weight:bold;font-size:18px}
+.download-section{text-align:center;margin-top:40px;padding-top:30px;border-top:2px solid #eee}
 
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 30px;
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
+/* 扫光下载按钮 */
+.download-btn{
+  background:#667eea;color:#fff;padding:15px 40px;border-radius:30px;font-size:18px;font-weight:600;text-decoration:none;display:inline-block;position:relative;overflow:hidden;transition:all .3s
+}
+.download-btn::after{
+  content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,#fff,transparent);
+  transition:left .6s;
+}
+.download-btn:hover::after{left:100%}
+.download-btn:hover{box-shadow:0 10px 25px rgba(102,126,234,.6);transform:translateY(-2px)}
 
-        .back-btn:hover {
-            color: #764ba2;
-        }
-
-        .app-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .app-icon {
-            width: 120px;
-            height: 120px;
-            border-radius: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .app-title {
-            font-size: 36px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .app-version {
-            color: #666;
-            font-size: 16px;
-        }
-
-        .app-screenshots {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-        }
-
-        .screenshot {
-            width: 100%;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .screenshot:hover {
-            transform: scale(1.05);
-        }
-
-        .app-description {
-            margin: 30px 0;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        .app-features {
-            margin: 30px 0;
-        }
-
-        .app-features h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .feature-list li {
-            padding: 10px 0;
-            padding-left: 30px;
-            position: relative;
-            color: #555;
-        }
-
-        .feature-list li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #667eea;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .download-section {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #eee;
-        }
-
-        .download-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-            
-            .app-title {
-                font-size: 28px;
-            }
-        }
-    </style>
+@media(max-width:600px){.container{padding:20px}.app-title{font-size:28px}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="back-btn">← 返回主页</a>
-        
-        <div class="app-header">
-            <img id="appIcon" src="https://via.placeholder.com/120" alt="应用图标" class="app-icon">
-            <h1 id="appTitle" class="app-title">应用名称</h1>
-            <p id="appVersion" class="app-version">版本 1.0.0</p>
-        </div>
+<!-- 雪花 -->
+<div class="snow" id="snow"></div>
 
-        <div class="app-screenshots">
-            <img src="https://via.placeholder.com/300x600/667eea/ffffff?text=截图1" alt="截图1" class="screenshot">
-            <img src="https://via.placeholder.com/300x600/764ba2/ffffff?text=截图2" alt="截图2" class="screenshot">
-        </div>
+<div class="container">
+  <a href="index.html" class="back-btn">← 返回主页</a>
+  <div class="app-header">
+    <img id="appIcon" src="https://via.placeholder.com/120" alt="应用图标" class="app-icon">
+    <h1 id="appTitle" class="app-title">应用名称</h1>
+    <p id="appVersion" class="app-version">版本 1.0.0</p>
+  </div>
 
-        <div class="app-description">
-            <p id="appDescription">这是一个功能强大的应用程序，旨在为用户提供最佳的使用体验。我们致力于创造简洁、高效、美观的产品。</p>
-        </div>
+  <div class="app-screenshots">
+    <img src="https://via.placeholder.com/300x600/667eea/ffffff?text=截图1" class="screenshot">
+    <img src="https://via.placeholder.com/300x600/764ba2/ffffff?text=截图2" class="screenshot">
+  </div>
 
-        <div class="app-features">
-            <h3>主要功能</h3>
-            <ul class="feature-list" id="featureList">
-                <li>简洁优雅的用户界面</li>
-                <li>强大的核心功能</li>
-                <li>快速响应的性能</li>
-                <li>持续更新和优化</li>
-            </ul>
-        </div>
+  <div class="app-description"><p id="appDescription">VerdGard 精心打造，为你带来极致体验。</p></div>
 
-        <div class="download-section">
-            <a href="#" class="download-btn" id="downloadBtn">立即下载</a>
-        </div>
-    </div>
+  <div class="app-features">
+    <h3>主要功能</h3>
+    <ul class="feature-list" id="featureList">
+      <li>简洁优雅的用户界面</li>
+      <li>强大的核心功能</li>
+      <li>快速响应的性能</li>
+      <li>持续更新和优化</li>
+    </ul>
+  </div>
 
-    <script>
-        // 根据URL参数显示不同的应用信息
-        const urlParams = new URLSearchParams(window.location.search);
-        const appId = urlParams.get('app');
+  <div class="download-section">
+    <a href="#" class="download-btn" id="downloadBtn">立即下载</a>
+  </div>
+</div>
 
-        // 模拟应用数据
-        const appData = {
-            '1': {
-                name: '应用名称 1',
-                version: '2.1.0',
-                description: '这是一个创新的应用程序，为用户提供独特的体验和服务。采用最新的技术栈开发，确保最佳的性能和用户体验。',
-                features: ['智能推荐算法', '离线模式支持', '多平台同步', '数据加密保护', '个性化定制'],
-                downloadLink: '#'
-            },
-            '2': {
-                name: '应用名称 2',
-                version: '1.5.3',
-                description: '功能强大的工具应用，帮助用户提高工作效率和生活质量。界面简洁直观，操作便捷流畅。',
-                features: ['云端数据备份', '团队协作功能', '实时通知提醒', '多语言支持', '高级搜索功能'],
-                downloadLink: '#'
-            }
-        };
+<script>
+/* 雪花 */
+function createSnow(){
+  const snow=document.getElementById('snow');
+  for(let i=0;i<60;i++){
+    const span=document.createElement('span');
+    span.style.left=Math.random()*100+'%';
+    span.style.animationDuration=(4+Math.random()*6)+'s';
+    span.style.animationDelay=Math.random()*6+'s';
+    span.style.opacity=Math.random()*.8+.2;
+    snow.appendChild(span);
+  }
+}
+createSnow();
 
-        // 更新页面内容
-        if (appId && appData[appId]) {
-            const app = appData[appId];
-            document.getElementById('appTitle').textContent = app.name;
-            document.getElementById('appVersion').textContent = `版本 ${app.version}`;
-            document.getElementById('appDescription').textContent = app.description;
-            document.getElementById('downloadBtn').href = app.downloadLink;
-
-            // 更新功能列表
-            const featureList = document.getElementById('featureList');
-            featureList.innerHTML = app.features.map(feature => `<li>${feature}</li>`).join('');
-        }
-    </script>
+/* 应用数据 */
+const urlParams=new URLSearchParams(window.location.search);
+const appId=urlParams.get('app');
+const appData={
+  '1':{
+    name:'应用名称 1',version:'2.1.0',
+    description:'由 VerdGard 开发的创新应用，为你带来独特体验。',
+    features:['智能推荐算法','离线模式支持','多平台同步','数据加密保护','个性化定制'],
+    downloadLink:'#'
+  },
+  '2':{
+    name:'应用名称 2',version:'1.5.3',
+    description:'VerdGard 出品的高效工具，助力工作生活。',
+    features:['云端数据备份','团队协作功能','实时通知提醒','多语言支持','高级搜索功能'],
+    downloadLink:'#'
+  }
+};
+if(appId && appData[appId]){
+  const app=appData[appId];
+  document.getElementById('appTitle').textContent=app.name;
+  document.getElementById('appVersion').textContent=`版本 ${app.version}`;
+  document.getElementById('appDescription').textContent=app.description;
+  document.getElementById('downloadBtn').href=app.downloadLink;
+  document.getElementById('featureList').innerHTML=app.features.map(f=>`<li>${f}</li>`).join('');
+}
+</script>
 </body>
 </html>

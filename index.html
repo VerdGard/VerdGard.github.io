@@ -1,137 +1,170 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <title>星尘拾光 -VerdGard
-  </title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --accent: #2dd4bf;
-      --bg: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      padding: 2rem;
-      max-width: 48rem;
-      margin: auto;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    header img {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    header h1 {
-      font-size: 1.5rem;
-    }
-    header p {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    nav {
-      margin-bottom: 2rem;
-    }
-    nav a {
-      margin-right: 1rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    article {
-      margin-bottom: 2.5rem;
-    }
-    article h2 {
-      font-size: 1.25rem;
-      margin-bottom: 0.25rem;
-    }
-    article time {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-    article .tags {
-      margin-top: 0.5rem;
-    }
-    article .tags span {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 0.15rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.75rem;
-      margin-right: 0.4rem;
-    }
-    footer {
-      text-align: center;
-      margin-top: 3rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的应用发布站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 开发者信息区域 */
+        .developer-info {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-top: 40px;
+        }
+
+        .developer-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .developer-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .developer-name {
+            font-size: 32px;
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 应用卡片区域 */
+        .apps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .app-card:hover .app-image {
+            transform: scale(1.05);
+        }
+
+        .app-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .app-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 跳转按钮 */
+        .view-more-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .view-more-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .apps-container {
+                grid-template-columns: 1fr;
+                padding: 0 10px;
+            }
+            
+            .developer-name {
+                font-size: 28px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <img src="https://picsum.photos/120/120?random=42" alt="avatar" />
-    <div>
-      <h1>星尘拾光</h1>
-      <p>记录代码与生活的碎片</p>
+    <div class="container">
+        <!-- 开发者信息 -->
+        <div class="developer-info">
+            <img src="https://via.placeholder.com/150" alt="开发者头像" class="developer-avatar">
+            <h1 class="developer-name">开发者名称</h1>
+        </div>
+
+        <!-- 应用卡片 -->
+        <div class="apps-container">
+            <!-- 应用卡片 1 -->
+            <div class="app-card">
+                <img src="https://via.placeholder.com/400x200/667eea/ffffff?text=应用1" alt="应用1" class="app-image">
+                <h3 class="app-name">应用名称 1</h3>
+                <p class="app-description">这是一个创新的应用程序，为用户提供独特的体验和服务。</p>
+                <a href="app-detail.html?app=1" class="view-more-btn">查看详情</a>
+            </div>
+
+            <!-- 应用卡片 2 -->
+            <div class="app-card">
+                <img src="https://via.placeholder.com/400x200/764ba2/ffffff?text=应用2" alt="应用2" class="app-image">
+                <h3 class="app-name">应用名称 2</h3>
+                <p class="app-description">功能强大的工具应用，帮助用户提高工作效率和生活质量。</p>
+                <a href="app-detail.html?app=2" class="view-more-btn">查看详情</a>
+            </div>
+        </div>
     </div>
-  </header>
-
-  <nav>
-    <a href="#">首页</a>
-    <a href="#archive">归档</a>
-    <a href="#about">关于</a>
-    <a href="#friends">友链</a>
-  </nav>
-
-  <main>
-    <article>
-      <h2>用 30 行 Python 写一张“噪声诗”</h2>
-      <time>2025-12-13</time>
-      <p>把 Perlin 噪声变成汉字，让算法替我写一首不会重样的诗……</p>
-      <div class="tags">
-        <span>Python</span><span>创意编程</span><span>噪声</span>
-      </div>
-    </article>
-
-    <article>
-      <h2>在地铁里读完的《小王子》</h2>
-      <time>2025-12-10</time>
-      <p>通勤的 17 站路，刚好够玫瑰与狐狸讲完他们的故事。</p>
-      <div class="tags">
-        <span>读书笔记</span><span>碎片时间</span>
-      </div>
-    </article>
-
-    <article>
-      <h2>给博客加一只随机猫</h2>
-      <time>2025-12-05</time>
-      <p>每次刷新页面，页脚都会蹦出一只新猫，代码只有三行。</p>
-      <div class="tags">
-        <span>前端</span><span>猫</span><span>彩蛋</span>
-      </div>
-    </article>
-  </main>
-
-  <footer>
-    © 2025 VerdGard • 构建于午后一杯拿铁
-  </footer>
 </body>
 </html>

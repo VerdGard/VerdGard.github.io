@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乐阒渊</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --accent-cyan: #22d3ee;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #f8fafc;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'PingFang SC', system-ui, sans-serif;
+            background-color: var(--dark-bg);
+            background-image: radial-gradient(circle at 50% -20%, #312e81, transparent);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 动画 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        header {
+            padding: 3rem 1rem 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            padding: 4px;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+            margin-bottom: 1.2rem;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .app-icon img {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--dark-bg);
+        }
+
+        .software-name {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin: 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.3));
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            animation: slideIn 0.8s ease-out backwards;
+        }
+
+        /* 截图横排滚动优化 */
+        .screenshot-wrapper {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 0.5rem 0;
+            /* 隐藏滚动条 */
+            scrollbar-width: none; 
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .screenshot-wrapper::-webkit-scrollbar { display: none; }
+
+        .screenshot-item {
+            /* 手机端默认宽度：一屏约显示2张半，引导滑动 */
+            flex: 0 0 150px; 
+            aspect-ratio: 9 / 16; /* 锁定长宽比 */
+            scroll-snap-align: start;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease, border-color 0.3s;
+            cursor: zoom-in;
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* 电脑端大屏适配 */
+        @media (min-width: 768px) {
+            header { padding: 4rem 1rem 2rem; }
+            .app-icon { width: 120px; height: 120px; }
+            .software-name { font-size: 4rem; }
+            .screenshot-item { flex: 0 0 220px; } /* 电脑端显示大一些 */
+            .card { padding: 2.5rem; margin-bottom: 2.5rem; }
+        }
+
+        .screenshot-item:active { transform: scale(0.95); }
+        .screenshot-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; /* 关键：图片填满容器且不拉伸 */
+            display: block; 
+        }
+
+        /* 更新日志列表 */
+        .changelog-item {
+            margin-bottom: 1.5rem;
+            padding-left: 1rem;
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        .version-tag {
+            background: var(--primary-gradient);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .download-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 1.5rem auto;
+            padding: 1rem;
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 100px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: 0.3s;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        /* 弹出层样式 */
+        #lightbox {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            cursor: zoom-out;
+            backdrop-filter: blur(10px);
+        }
+
+        #lightbox img {
+            max-width: 95%;
+            max-height: 85%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #lightbox.active { display: flex; }
+        #lightbox.active img { transform: scale(1); }
+
+        footer { text-align: center; opacity: 0.4; padding: 2rem; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="app-icon">
+        <img src="https://pan.baidu.re/view.php/97cbf05c629bcd46710daa1123dcc879.png" alt="乐阒渊图标">
+    </div>
+    <h1 class="software-name">乐阒渊</h1>
+</header>
+
+<div class="container">
+    <div class="card" style="text-align: center;">
+        <p style="font-size: 1.1rem; opacity: 0.8; margin-bottom: 0.5rem;">极致纯粹的交互体验</p>
+        <p style="font-size: 0.9rem; opacity: 0.5; margin-top: 0;">探索未知的深渊之美</p>
+        <a href="#" class="download-btn">立即获取</a>
+    </div>
+
+    <div class="card">
+        <h2 style="color: var(--accent-cyan); margin-top: 0; font-size: 1.3rem;">视觉预览</h2>
+        <div class="screenshot-wrapper" id="screenshot-container"></div>
+        <p style="text-align: center; font-size: 0.75rem; opacity: 0.4; margin-top: 1rem;">点击截图可放大查看</p>
+    </div>
+
+    <div class="card">
+        <h2 style="color: var(--accent-cyan); margin-top: 0; font-size: 1.3rem;">更新日志</h2>
+        <div id="changelog-container"></div>
+    </div>
+</div>
+
+<div id="lightbox">
+    <img src="" alt="预览图">
+</div>
+
+<footer>© 2026 椐墨罹 · All Rights Reserved</footer>
+
+<script>
+    const appData = {
+        screenshots: [
+            { "url": "https://pan.baidu.re/view.php/2602ee55f699aa3681ba90ce75404ccb.jpg" },
+            { "url": "https://pan.baidu.re/view.php/4207e01b4a3d401db6db8fecbc5e1f1c.jpg" }
+        ],
+        updates: [
+            {
+                "version": "v1.5.0",
+                "date": "2026-02-07",
+                "logs": ["内置JSON数据解决加载问题", "新增弹出式图片预览功能", "优化页面入场动画效果"]
+            },
+            {
+                "version": "v1.2.0",
+                "date": "2026-01-15",
+                "logs": ["适配了深色模式下的对比度", "新增作者认证标识"]
+            },
+            {
+                "version": "v1.0.0",
+                "date": "2025-12-01",
+                "logs": ["乐阒渊初代版本正式发布"]
+            }
+        ]
+    };
+
+    function renderScreenshots(data) {
+        const container = document.getElementById('screenshot-container');
+        const html = data.map(item => `
+            <div class="screenshot-item" onclick="openLightbox('${item.url}')">
+                <img src="${item.url}" alt="应用截图" loading="lazy">
+            </div>
+        `).join('');
+        container.innerHTML = html;
+    }
+
+    function renderChangelog(data) {
+        const container = document.getElementById('changelog-container');
+        const html = data.map((item, index) => `
+            <div class="changelog-item" style="animation: slideIn 0.5s ease forwards ${index * 0.1}s; opacity: 0;">
+                <div style="margin-bottom: 6px;">
+                    <span class="version-tag">${item.version}</span>
+                    <span style="opacity: 0.5; font-size: 0.85rem;">${item.date}</span>
+                </div>
+                <ul style="margin: 0; padding-left: 18px; opacity: 0.85; font-size: 0.9rem;">
+                    ${item.logs.map(log => `<li>${log}</li>`).join('')}
+                </ul>
+            </div>
+        `).join('');
+        container.innerHTML = html;
+    }
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = lightbox.querySelector('img');
+
+    function openLightbox(url) {
+        lightboxImg.src = url;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+    }
+
+    lightbox.onclick = () => {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = 'auto'; 
+    }
+
+    window.onload = () => {
+        renderScreenshots(appData.screenshots);
+        renderChangelog(appData.updates);
+    };
+</script>
+
+</body>
+</html>

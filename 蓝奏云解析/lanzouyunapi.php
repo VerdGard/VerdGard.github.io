@@ -14,7 +14,7 @@ if($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
 }
 
 //error_reporting(0); // 不显示错误
-include 'lanzouyunapiconfig.php'; // 导入配置文件
+include '蓝奏云解析/lanzouyunapiconfig.php'; // 导入配置文件
 $params = array_merge($_GET, $_POST); // 优先使用POST参数
 if(empty($params["url"])) exit(response(400,"缺少参数",null));
 $id = preg_match("/^(?:https?:\/\/)?[aA-zZ0-9.-]+\.com\/(?:tp\/)?(.+)/",$params["url"],$id) ? $id[1] : $params["url"]; // 路径或链接

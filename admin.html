@@ -91,10 +91,17 @@
             font-family: monospace;
         }
         
+        .token-status {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #28a745;
+        }
+        
         .button-group {
             display: flex;
             gap: 15px;
             margin-top: 30px;
+            flex-wrap: wrap;
         }
         
         button {
@@ -125,6 +132,17 @@
         
         .btn-secondary:hover {
             background: #5a6268;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #dc3545;
+            color: #dc3545;
+        }
+        
+        .btn-outline:hover {
+            background: #dc3545;
+            color: white;
         }
         
         .status {
@@ -203,15 +221,19 @@
     <div class="container">
         <div class="header">
             <h1>⚙️ 网站配置管理面板</h1>
-            <p>安全修改 control.json 配置文件</p>
+            <p>自动读取配置，安全修改 control.json</p>
         </div>
         
         <div class="content">
-            <!-- Token 输入 -->
+            <!-- Token 输入区域 -->
             <div class="form-group">
                 <label>GitHub Token <span class="required">*</span></label>
                 <input type="password" id="token" class="token-input" placeholder="输入你的 GitHub Personal Access Token">
-                <div class="info-text">Token 仅用于本次操作，不会保存到任何地方</div>
+                <div id="tokenStatus" class="token-status"></div>
+                <div class="info-text">
+                    Token 仅用于本次操作。保存后会自动记住（关闭浏览器后清除），确保下次自动加载。
+                    <button type="button" onclick="clearToken()" style="background:none; border:none; color:#dc3545; cursor:pointer; text-decoration:underline; padding:0; margin-left:8px;">清除 Token</button>
+                </div>
             </div>
             
             <!-- 版本信息 -->
@@ -249,7 +271,7 @@
             
             <!-- 操作按钮 -->
             <div class="button-group">
-                <button class="btn-secondary" onclick="loadConfig()">📂 加载当前配置</button>
+                <button class="btn-secondary" onclick="loadConfig(true)">📂 手动刷新</button>
                 <button class="btn-primary" onclick="saveConfig()">💾 保存配置</button>
             </div>
             
@@ -266,7 +288,47 @@
         
         let currentSha = null;
         
-        // 获取所有表单字段
+        // ========== Token 存储相关 ==========
+        function saveTokenToSession(token) {
+            if (token) {
+                sessionStorage.setItem('github_token', token);
+                document.getElementById('tokenStatus').innerHTML = '✓ Token 已保存（关闭浏览器后自动清除）';
+                document.getElementById('tokenStatus').style.color = '#28a745';
+            } else {
+                sessionStorage.removeItem('github_token');
+                document.getElementById('tokenStatus').innerHTML = '';
+            }
+        }
+        
+        function getStoredToken() {
+            return sessionStorage.getItem('github_token') || '';
+        }
+        
+        function clearToken() {
+            sessionStorage.removeItem('github_token');
+            document.getElementById('token').value = '';
+            document.getElementById('tokenStatus').innerHTML = '✓ Token 已清除';
+            document.getElementById('tokenStatus').style.color = '#dc3545';
+            showStatus('Token 已清除，下次需要重新输入', 'info');
+            // 不清空表单内容，但下次保存/加载会提示无 Token
+        }
+        
+        // 自动加载配置（页面加载时调用）
+        async function autoLoadConfig() {
+            const storedToken = getStoredToken();
+            if (storedToken) {
+                document.getElementById('token').value = storedToken;
+                document.getElementById('tokenStatus').innerHTML = '✓ 已自动加载 Token，正在读取配置...';
+                document.getElementById('tokenStatus').style.color = '#28a745';
+                await loadConfig(false); // 静默加载，不显示手动提示
+            } else {
+                document.getElementById('tokenStatus').innerHTML = '⚠️ 未检测到 Token，请手动输入后点击“手动刷新”';
+                document.getElementById('tokenStatus').style.color = '#ffc107';
+                showStatus('请先输入 GitHub Token 并点击“手动刷新”加载配置', 'info');
+            }
+        }
+        
+        // ========== 表单数据处理 ==========
         function getFormData() {
             return {
                 version: document.getElementById('version').value.trim(),
@@ -276,7 +338,6 @@
             };
         }
         
-        // 设置表单数据
         function setFormData(data) {
             document.getElementById('version').value = data.version || '';
             document.getElementById('downloadUrl').value = data.downloadUrl || '';
@@ -315,14 +376,32 @@
         }
         
         // 加载配置
-        async function loadConfig() {
-            const token = document.getElementById('token').value;
+        async function loadConfig(showManualMessage = true) {
+            const tokenInput = document.getElementById('token').value;
+            const token = tokenInput || getStoredToken();
+            
             if (!token) {
                 showStatus('❌ 请输入 GitHub Token', 'error');
                 return;
             }
             
-            showStatus('🔄 正在加载配置...', 'info');
+            // 保存到 sessionStorage（如果用户输入了新的）
+            if (tokenInput) {
+                saveTokenToSession(token);
+            }
+            
+            if (showManualMessage) {
+                showStatus('🔄 正在加载配置...', 'info');
+            } else {
+                // 自动加载时也显示一个简短提示，但不用弹太久
+                showStatus('🔄 自动加载中...', 'info');
+                setTimeout(() => {
+                    const statusDiv = document.getElementById('status');
+                    if (statusDiv.classList.contains('show') && statusDiv.textContent === '🔄 自动加载中...') {
+                        statusDiv.classList.remove('show');
+                    }
+                }, 1000);
+            }
             
             try {
                 const response = await fetch(
@@ -371,17 +450,24 @@
                     showStatus('⚠️ control.json 不存在，保存时将创建新文件', 'info');
                 } else {
                     showStatus(`❌ 加载失败: ${error.message}`, 'error');
+                    // 如果 Token 无效，清除存储的 Token
+                    if (error.message.includes('401') || error.message.includes('403')) {
+                        clearToken();
+                    }
                 }
             }
         }
         
         // 保存配置
         async function saveConfig() {
-            const token = document.getElementById('token').value;
+            const token = document.getElementById('token').value || getStoredToken();
             if (!token) {
                 showStatus('❌ 请输入 GitHub Token', 'error');
                 return;
             }
+            
+            // 保存 token 以便下次自动加载
+            saveTokenToSession(token);
             
             const formData = getFormData();
             
@@ -456,18 +542,21 @@
                 
                 showStatus(`✅ 保存成功！版本 ${formData.version} 已更新`, 'success');
                 
-                // 可选：清空 Token（增强安全性）
-                // document.getElementById('token').value = '';
+                // 可选：重新加载一次以更新 sha
+                await loadConfig(false);
                 
             } catch (error) {
                 showStatus(`❌ 保存失败: ${error.message}`, 'error');
             }
         }
         
-        // 页面加载时显示预览
-        updatePreview();
+        // 页面加载时自动读取配置
+        window.addEventListener('DOMContentLoaded', () => {
+            updatePreview();
+            autoLoadConfig();
+        });
         
-        // 添加键盘快捷键支持 (Ctrl/Cmd + Enter 保存)
+        // 快捷键支持 (Ctrl/Cmd + Enter 保存)
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();

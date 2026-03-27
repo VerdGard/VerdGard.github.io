@@ -2,9 +2,12 @@
   "version": "12345",
   "downloadUrl": "123456",
   "updateContent": [
-    "164646846484.9467978",
-    "hello"
+    "·Optimize the startup speed and improve some functions.",
+    "·Optimize code logic and fix data bugs",
+    "·Optimization of startup page permissions",
+    "·The overall optimization of the first animation network",
+    "·Fix icon adaptive BUG"
   ],
-  "announcement": "ÃÂ¤ÃÂ½ÃÂ ÃÂ¥ÃÂ¥ÃÂ½",
-  "lastUpdated": "2026-03-27T13:32:02.761Z"
+  "announcement": "The system is updated tonight.",
+  "lastUpdated": "2026-03-27T13:34:56.516Z"
 }

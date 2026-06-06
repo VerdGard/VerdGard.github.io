@@ -1,551 +1,624 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="ManTa — 动漫数据采集APP。基于LuaAppx Pro，使用XPath和Jsoup框架的智能动漫聚合工具。由 SoloSu 开发。" />
-  <meta name="keywords" content="ManTa, 动漫, 采集, 爬虫, 动漫APP, SoloSu, LuaAppx, LuaJava" />
-  <title>ManTa — 动漫数据采集引擎 | SoloSu</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ManTa — 动漫数据采集引擎。基于 LuaAppx Pro 框架，使用 LuaJava、XPath、Jsoup 构建的动漫聚合搜索采集APP。由 SoloSu 开发。">
+<meta name="keywords" content="ManTa, 动漫, 数据采集, LuaAppx Pro, LuaJava, XPath, Jsoup, SoloSu, 动漫聚合搜索">
+<meta name="author" content="SoloSu">
+<meta name="theme-color" content="#0a0b1a">
+<title>ManTa — 动漫数据采集引擎 | SoloSu</title>
+<style>
+/* Design System */
+:root {
+  --bg-base: #0a0b1a; --bg-surface: #121324; --bg-card: #1a1b35; --bg-elevated: #222345;
+  --accent-primary: #00d4ff; --accent-secondary: #ff6b9d; --accent-tertiary: #7c3aed;
+  --text-primary: #f0f0f8; --text-secondary: #9495b8; --text-muted: #5c5d7a;
+  --border-subtle: #2a2b4a; --border-glow: rgba(0,212,255,0.2);
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-body: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono','JetBrains Mono','Fira Code',monospace;
+  --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px; --radius-xl: 28px; --radius-full: 9999px;
+  --shadow-soft: 0 4px 24px rgba(0,0,0,0.3); --shadow-glow: 0 0 40px rgba(0,212,255,0.15);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+  --z-base: 1; --z-dropdown: 50; --z-nav: 100; --z-overlay: 200;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+.container{width:100%;max-width:1280px;margin:0 auto;padding:0 24px}
+@media(min-width:768px){.container{padding:0 40px}}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-base)}
+::-webkit-scrollbar-thumb{background:var(--border-subtle);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+::selection{background:rgba(0,212,255,0.3);color:#fff}
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+/* Navbar */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:var(--z-nav);transition:background .3s,border-color .3s;height:64px}
+.navbar.scrolled{background:rgba(10,11,26,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(42,43,74,.5)}
+.navbar .container{display:flex;align-items:center;justify-content:space-between;height:100%}
+.navbar-logo{display:flex;align-items:center;gap:10px}
+.navbar-logo-mark{width:32px;height:32px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:14px;color:#fff}
+.navbar-logo-text{font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:-.02em}
+.navbar-links{display:none;align-items:center;gap:32px}
+@media(min-width:768px){.navbar-links{display:flex}}
+.navbar-link{font-size:14px;color:var(--text-secondary);transition:color .2s}
+.navbar-link:hover{color:var(--text-primary)}
+.navbar-cta{display:none;align-items:center;gap:6px;border-radius:var(--radius-full);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.18);padding:8px 20px;font-size:14px;font-weight:500;color:var(--accent-primary);transition:background .2s;white-space:nowrap}
+@media(min-width:768px){.navbar-cta{display:inline-flex}}
+.navbar-cta:hover{background:rgba(0,212,255,.16)}
+.navbar-cta-dot{width:14px;height:14px;border-radius:50%;background:var(--accent-primary);animation:glow-pulse 3s ease-in-out infinite}
+.navbar-cta-mobile{display:inline-flex;border-radius:var(--radius-full);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.18);padding:6px 16px;font-size:13px;font-weight:500;color:var(--accent-primary);white-space:nowrap}
+@media(min-width:768px){.navbar-cta-mobile{display:none}}
 
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css" />
+/* Hero */
+.hero{position:relative;min-height:100dvh;display:flex;align-items:center;padding-top:96px;padding-bottom:64px;overflow:hidden}
+.hero-bg-grid{position:absolute;inset:0;opacity:.04;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,.3)1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.3)1px,transparent 1px);background-size:60px 60px}
+.hero-glow-1{position:absolute;top:25%;left:-128px;width:384px;height:384px;border-radius:50%;background:rgba(0,212,255,.04);filter:blur(120px);animation:glow-pulse 3s ease-in-out infinite}
+.hero-glow-2{position:absolute;bottom:25%;right:-128px;width:320px;height:320px;border-radius:50%;background:rgba(124,58,237,.04);filter:blur(120px);animation:glow-pulse 3s ease-in-out infinite;animation-delay:1.5s}
+.hero-content{position:relative;z-index:var(--z-base);max-width:720px;margin:0 auto;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;border-radius:var(--radius-full);background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.12);padding:6px 16px;font-size:12px;font-weight:500;color:var(--accent-primary);margin-bottom:24px;opacity:0;transform:translateY(20px);animation:fade-up .5s ease forwards}
+.hero-title{font-family:var(--font-display);font-size:36px;font-weight:700;line-height:1.1;letter-spacing:-.03em;opacity:0;transform:translateY(30px);animation:fade-up .6s ease .15s forwards}
+@media(min-width:640px){.hero-title{font-size:48px}}
+@media(min-width:768px){.hero-title{font-size:60px}}
+@media(min-width:1024px){.hero-title{font-size:72px}}
+.hero-title-gradient{background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary),var(--accent-tertiary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-subtitle{margin-top:20px;font-size:15px;line-height:1.7;color:var(--text-secondary);max-width:560px;margin-left:auto;margin-right:auto;opacity:0;transform:translateY(20px);animation:fade-up .5s ease .3s forwards}
+@media(min-width:640px){.hero-subtitle{font-size:16px}}
+.hero-actions{margin-top:32px;display:flex;flex-direction:column;align-items:center;gap:16px;opacity:0;transform:translateY(20px);animation:fade-up .5s ease .45s forwards}
+@media(min-width:640px){.hero-actions{flex-direction:row;justify-content:center}}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;border-radius:var(--radius-full);background:var(--accent-primary);color:var(--bg-base);padding:12px 28px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:background .2s,box-shadow .2s;white-space:nowrap;box-shadow:0 4px 24px rgba(0,212,255,.2)}
+.btn-primary:hover{background:rgba(0,212,255,.9);box-shadow:0 8px 32px rgba(0,212,255,.3)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;border-radius:var(--radius-full);border:1px solid var(--border-subtle);color:var(--text-secondary);padding:12px 28px;font-size:14px;font-weight:500;transition:border-color .2s,color .2s;white-space:nowrap}
+.btn-secondary:hover{border-color:var(--text-muted);color:var(--text-primary)}
+.hero-tech-tags{margin-top:40px;display:flex;flex-wrap:wrap;justify-content:center;gap:12px;opacity:0;animation:fade-up .6s ease .6s forwards}
+.hero-tech-tag{display:inline-flex;align-items:center;gap:6px;border-radius:var(--radius-full);background:rgba(26,27,53,.6);border:1px solid rgba(42,43,74,.5);padding:6px 14px;font-size:12px;color:var(--text-muted)}
+.hero-tech-tag svg{width:14px;height:14px;color:rgba(0,212,255,.6)}
 
-  <!-- Favicon (inline SVG) -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0b1a'/><text x='16' y='23' font-family='Outfit,sans-serif' font-size='22' font-weight='800' fill='url(%23g)' text-anchor='middle'>M</text><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%2300d4ff'/><stop offset='100%25' stop-color='%237c3aed'/></linearGradient></defs></svg>" type="image/svg+xml" />
+/* Sections */
+.section{position:relative;padding:96px 0;overflow:hidden}
+@media(min-width:768px){.section{padding:128px 0}}
+.section-label{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.section-heading{font-family:var(--font-display);font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-.02em}
+@media(min-width:640px){.section-heading{font-size:36px}}
+.section-subtitle{margin-top:12px;font-size:14px;color:var(--text-secondary);line-height:1.7}
 
-  <!-- Inline critical CSS for FOUC prevention -->
-  <style>
-    html { background: #0a0b1a; color: #f0f0f8; }
-  </style>
+/* Features */
+.features{background:linear-gradient(to bottom,var(--bg-base),rgba(18,19,36,.3),var(--bg-base))}
+.features-header{max-width:480px}
+.features-header .section-label{color:var(--accent-primary)}
+.features-grid{margin-top:56px;display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:768px){.features-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.features-grid{grid-template-columns:repeat(3,1fr)}}
+.feature-card{position:relative;border-radius:var(--radius-lg);border:1px solid rgba(42,43,74,.5);background:rgba(26,27,53,.35);padding:24px;backdrop-filter:blur(8px);transition:border-color .3s,background .3s}
+.feature-card:hover{border-color:rgba(0,212,255,.18);background:rgba(26,27,53,.6)}
+.feature-badge{position:absolute;top:16px;right:16px;border-radius:var(--radius-full);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.12);padding:4px 10px;font-size:10px;font-weight:500;color:var(--accent-primary)}
+.feature-icon{width:40px;height:40px;border-radius:var(--radius-md);background:rgba(0,212,255,.06);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.feature-icon svg{width:20px;height:20px;color:var(--accent-primary)}
+.feature-title{font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--text-primary)}
+.feature-desc{margin-top:8px;font-size:14px;color:var(--text-secondary);line-height:1.6}
+@media(min-width:1024px){.feature-card-wide{grid-column:span 2}}
+
+/* Pipeline */
+.pipeline{overflow:hidden}
+.pipeline-header{max-width:480px;margin-left:auto;text-align:right}
+.pipeline-header .section-label{color:var(--accent-secondary)}
+.pipeline-steps{margin-top:56px;position:relative}
+.pipeline-step{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:24px;margin-bottom:48px}
+@media(min-width:1024px){.pipeline-step{flex-direction:row;align-items:flex-start}.pipeline-step:nth-child(even){flex-direction:row-reverse}}
+.pipeline-step:last-child{margin-bottom:0}
+.pipeline-card{flex:1;max-width:480px;border-radius:var(--radius-lg);border:1px solid rgba(42,43,74,.5);background:rgba(26,27,53,.35);padding:24px;backdrop-filter:blur(8px);transition:border-color .3s}
+.pipeline-card:hover{border-color:rgba(255,107,157,.18)}
+@media(min-width:1024px){.pipeline-step:nth-child(odd) .pipeline-card{text-align:right}}
+.pipeline-card-icon{width:40px;height:40px;border-radius:var(--radius-md);background:rgba(255,107,157,.08);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+@media(min-width:1024px){.pipeline-step:nth-child(odd) .pipeline-card-icon{margin-left:auto}}
+.pipeline-card-icon svg{width:20px;height:20px;color:var(--accent-secondary)}
+.pipeline-card-title{font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--text-primary)}
+.pipeline-card-desc{margin-top:8px;font-size:14px;color:var(--text-secondary);line-height:1.6}
+.pipeline-card-hint{display:inline-block;margin-top:12px;font-family:var(--font-mono);font-size:11px;color:rgba(0,212,255,.7);background:rgba(0,212,255,.04);border-radius:var(--radius-sm);padding:4px 8px}
+.pipeline-spacer{display:none}
+@media(min-width:1024px){.pipeline-spacer{display:block;flex:1}}
+
+/* Showcase */
+.showcase{background:linear-gradient(to bottom,var(--bg-base),rgba(18,19,36,.15),var(--bg-base))}
+.showcase-header{max-width:480px;margin:0 auto;text-align:center}
+.showcase-header .section-label{color:var(--accent-tertiary)}
+.showcase-grid{margin-top:56px;display:flex;gap:20px;overflow-x:auto;padding-bottom:16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+@media(min-width:1024px){.showcase-grid{display:grid;grid-template-columns:repeat(4,1fr);overflow:visible;padding-bottom:0}}
+.anime-card{flex-shrink:0;width:260px;scroll-snap-align:start;cursor:pointer}
+@media(min-width:1024px){.anime-card{width:auto}}
+.anime-card-cover{position:relative;aspect-ratio:5/7;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-card);border:1px solid rgba(42,43,74,.45)}
+.anime-card-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.anime-card:hover .anime-card-cover img{transform:scale(1.05)}
+.anime-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,11,26,.9),transparent)}
+.anime-card-top{position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between}
+.anime-card-badge{border-radius:var(--radius-full);background:rgba(10,11,26,.6);backdrop-filter:blur(8px);padding:4px 10px;font-size:10px;font-weight:500;color:var(--text-primary);border:1px solid rgba(255,255,255,.04)}
+.anime-card-bookmark{width:32px;height:32px;border-radius:50%;background:rgba(10,11,26,.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .2s}
+.anime-card-bookmark:hover{background:rgba(0,212,255,.2)}
+.anime-card-bookmark svg{width:16px;height:16px;color:var(--text-primary)}
+.anime-card-bottom{position:absolute;bottom:0;left:0;right:0;padding:16px}
+.anime-card-title{font-family:var(--font-display);font-weight:600;font-size:14px;color:#fff;line-height:1.2}
+.anime-card-meta{margin-top:8px;display:flex;align-items:center;gap:8px}
+.anime-card-rating{display:flex;align-items:center;gap:4px}
+.anime-card-rating svg{width:12px;height:12px;fill:#facc15}
+.anime-card-rating span{font-size:11px;font-weight:500;color:rgba(255,255,255,.8)}
+.anime-card-tags{display:flex;gap:6px}
+.anime-card-tag{border-radius:var(--radius-full);background:rgba(255,255,255,.08);padding:2px 8px;font-size:10px;color:rgba(255,255,255,.65)}
+.anime-card-hover-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}
+.anime-card:hover .anime-card-hover-play{opacity:1}
+.anime-card-play-btn{width:56px;height:56px;border-radius:50%;background:rgba(0,212,255,.25);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08)}
+.anime-card-play-btn svg{width:24px;height:24px;color:#fff;margin-left:3px}
+
+/* Download */
+.download{position:relative;padding:96px 0;overflow:hidden}
+@media(min-width:768px){.download{padding:128px 0}}
+.download-bg-bottom{position:absolute;inset:0;background:linear-gradient(to bottom,var(--bg-base),rgba(0,212,255,.02),var(--bg-base));pointer-events:none}
+.download-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;border-radius:50%;background:rgba(0,212,255,.02);filter:blur(150px);pointer-events:none}
+.download-content{position:relative;max-width:576px;margin:0 auto;text-align:center}
+.download-icon-box{width:64px;height:64px;margin:0 auto 24px;border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--accent-primary),var(--accent-tertiary));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 48px rgba(0,212,255,.15)}
+.download-icon-box svg{width:32px;height:32px;color:#fff}
+.download-title{font-family:var(--font-display);font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-.02em}
+@media(min-width:640px){.download-title{font-size:36px}}
+@media(min-width:768px){.download-title{font-size:48px}}
+.download-subtitle{margin-top:16px;font-size:15px;color:var(--text-secondary);max-width:400px;margin-left:auto;margin-right:auto}
+.download-actions{margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:16px}
+@media(min-width:640px){.download-actions{flex-direction:row;justify-content:center}}
+.download-footer-note{margin-top:16px;font-size:12px;color:var(--text-muted)}
+
+/* Footer */
+.footer-bottom{border-top:1px solid rgba(42,43,74,.45)}
+.footer-bottom .container{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:16px;padding-top:24px;padding-bottom:24px;font-size:12px;color:var(--text-muted)}
+@media(min-width:640px){.footer-bottom .container{flex-direction:row}}
+.footer-bottom-left{display:flex;align-items:center;gap:8px}
+.footer-bottom-divider{color:var(--border-subtle)}
+.footer-bottom-right{display:flex;align-items:center;gap:16px}
+.footer-social-link{display:flex;align-items:center;color:var(--text-muted);transition:color .2s}
+.footer-social-link:hover{color:var(--text-secondary)}
+.footer-social-link svg{width:16px;height:16px}
+
+/* Animations */
+@keyframes fade-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow-pulse{0%,100%{opacity:.3}50%{opacity:.7}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.hero-badge,.hero-title,.hero-subtitle,.hero-actions,.hero-tech-tags{animation:none;opacity:1;transform:none}.reveal{opacity:1;transform:none}}
+</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300d4ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='6' fill='url(%23g)'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui' font-weight='800' font-size='18' fill='white'%3EM%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-
-  <!-- ========================================
-       NAVBAR
-       ======================================== -->
-  <nav class="navbar" role="navigation" aria-label="主导航">
-    <div class="container">
-      <a href="#" class="navbar-logo" aria-label="ManTa 首页">
-        <div class="navbar-logo-mark">M</div>
-        <span class="navbar-logo-text">ManTa</span>
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="navbar-logo">
+      <div class="navbar-logo-mark">M</div>
+      <span class="navbar-logo-text">ManTa</span>
+    </div>
+    <div class="navbar-links">
+      <a href="#features" class="navbar-link">核心能力</a>
+      <a href="#how-it-works" class="navbar-link">工作原理</a>
+      <a href="#showcase" class="navbar-link">作品展示</a>
+      <a href="#download" class="navbar-link">下载</a>
+      <a href="#download" class="navbar-cta">
+        <span class="navbar-cta-dot"></span>
+        立即体验
       </a>
+    </div>
+    <a href="#download" class="navbar-cta-mobile">下载</a>
+  </div>
+</nav>
 
-      <div class="navbar-links">
-        <a href="#features" class="navbar-link">功能</a>
-        <a href="#how-it-works" class="navbar-link">原理</a>
-        <a href="#showcase" class="navbar-link">展示</a>
-        <a href="#download" class="navbar-link">下载</a>
-        <a href="#download" class="navbar-cta">
-          <span class="navbar-cta-dot"></span>
-          立即体验
+<section class="hero" id="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <svg class="hero-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      v2.0 — 全新架构
+    </div>
+    <h1 class="hero-title">
+      为动漫数据而生的<br>
+      <span class="hero-title-gradient">采集引擎</span>
+    </h1>
+    <p class="hero-subtitle">
+      ManTa 是一款基于 LuaAppx Pro 框架的动漫数据采集 APP，由 SoloSu 开发。
+      通过 LuaJava 桥接、XPath 精准匹配与 Jsoup HTML 解析引擎，
+      实现对多源动漫数据的高效聚合与搜索。
+    </p>
+    <div class="hero-actions">
+      <a href="#download" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载 APK
+      </a>
+      <a href="#" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        技术文档
+      </a>
+    </div>
+    <div class="hero-tech-tags">
+      <span class="hero-tech-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> LuaAppx Pro</span>
+      <span class="hero-tech-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> LuaJava</span>
+      <span class="hero-tech-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg> XPath</span>
+      <span class="hero-tech-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8l-4 4-4-4"/><path d="M16 16l-4-4-4 4"/></svg> Jsoup</span>
+      <span class="hero-tech-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 官方配置</span>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section features" id="features">
+  <div class="container">
+    <div class="features-header">
+      <div class="section-label">Core Engine</div>
+      <h2 class="section-heading">技术核心</h2>
+      <p class="section-subtitle">每一行代码都为动漫数据而生。从底层解析到上层展示，ManTa 构建了一套完整的数据管线。</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-badge">稳定</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="feature-title">XPath 精准匹配</h3>
+        <p class="feature-desc">利用稳定的 XPath 语法定位目标数据节点，支持复杂层级结构与属性筛选，确保每次采集结果的精确性和一致性。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-badge">高效</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8l-4 4-4-4"/><path d="M16 16l-4-4-4 4"/></svg>
+        </div>
+        <h3 class="feature-title">Jsoup 解析引擎</h3>
+        <p class="feature-desc">基于 Jsoup 实现 HTML 文档的快速解析与 DOM 遍历，支持 CSS Selector 与 XPath 双模式，大幅提升数据提取效率。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-badge">桥接</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h3 class="feature-title">LuaJava 桥接</h3>
+        <p class="feature-desc">通过 LuaJava 框架实现 Lua 与 Java 的双向调用，让业务逻辑层与数据解析层无缝协作，同时保留 Lua 的灵活性与 Java 生态的成熟库支持。</p>
+      </div>
+      <div class="feature-card-wide feature-card reveal">
+        <div class="feature-badge">框架</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 class="feature-title">LuaAppx Pro 框架</h3>
+        <p class="feature-desc">基于 LuaAppx Pro 运行时，提供完整的 Android 原生能力封装。支持多线程调度、本地缓存管理、网络请求池与插件化扩展体系。框架层面保障了数据采集任务的稳定性与低功耗运行。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-badge">开箱即用</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="feature-title">官方配置驱动</h3>
+        <p class="feature-desc">内置经过验证的官方采集配置，涵盖主流动漫站点。安装即用，无需手动编写规则。预置配置持续更新，适配站点结构变化。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-badge">开发中</div>
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.66V20a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h5.34"/><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/></svg>
+        </div>
+        <h3 class="feature-title">自定义规则（即将推出）</h3>
+        <p class="feature-desc">规划中的开放规则编辑器将允许用户通过 UI 配置自定义采集规则，包括 URL 模板、XPath 表达式与数据映射，实现真正的个性化采集。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="section pipeline" id="how-it-works">
+  <div class="container">
+    <div class="pipeline-header">
+      <div class="section-label">Pipeline</div>
+      <h2 class="section-heading">工作原理</h2>
+      <p class="section-subtitle">从 URL 输入到结构化数据输出，ManTa 的数据管线分为四个清晰的阶段。</p>
+    </div>
+    <div class="pipeline-steps">
+      <div class="pipeline-step reveal">
+        <div class="pipeline-card">
+          <div class="pipeline-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <h3 class="pipeline-card-title">配置匹配</h3>
+          <p class="pipeline-card-desc">用户输入动漫名称或 URL 后，系统自动匹配预置的官方配置模板，识别目标站点类型与数据结构特征。匹配过程支持模糊权重算法，容忍 URL 格式差异。</p>
+          <span class="pipeline-card-hint">luajava → config matcher</span>
+        </div>
+        <div class="pipeline-spacer"></div>
+      </div>
+      <div class="pipeline-step reveal">
+        <div class="pipeline-spacer"></div>
+        <div class="pipeline-card">
+          <div class="pipeline-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8l-4 4-4-4"/><path d="M16 16l-4-4-4 4"/></svg>
+          </div>
+          <h3 class="pipeline-card-title">HTML 获取与解析</h3>
+          <p class="pipeline-card-desc">使用 LuaAppx Pro 网络请求池异步获取目标页面 HTML，交给 Jsoup 引擎解析为 DOM 树。支持请求重试、超时控制与 Cookie 持久化。</p>
+          <span class="pipeline-card-hint">Jsoup.parse(html)</span>
+        </div>
+      </div>
+      <div class="pipeline-step reveal">
+        <div class="pipeline-card">
+          <div class="pipeline-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3 class="pipeline-card-title">XPath 数据抽取</h3>
+          <p class="pipeline-card-desc">根据配置中的 XPath 表达式精准定位目标数据节点，提取标题、封面、评分、标签、章节列表等字段。支持相对路径、属性筛选与文本归一化。</p>
+          <span class="pipeline-card-hint">xpath("//div[@class='detail']/h1/text()")</span>
+        </div>
+        <div class="pipeline-spacer"></div>
+      </div>
+      <div class="pipeline-step reveal">
+        <div class="pipeline-spacer"></div>
+        <div class="pipeline-card">
+          <div class="pipeline-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h3 class="pipeline-card-title">结构化输出</h3>
+          <p class="pipeline-card-desc">抽取的数据经过清洗、去重与格式标准化后，聚合为统一的数据模型，供 UI 层渲染展示。整个管线通过 LuaJava 桥接协作，纯异步、低延迟。</p>
+          <span class="pipeline-card-hint">callback → UI render</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Showcase -->
+<section class="section showcase" id="showcase">
+  <div class="container">
+    <div class="showcase-header reveal">
+      <div class="section-label">Showcase</div>
+      <h2 class="section-heading">采集实况</h2>
+      <p class="section-subtitle">以下展示了 ManTa 引擎从各源采集的动漫数据卡片效果。封面、评分、标签、进度——所有字段均真实采集。</p>
+    </div>
+    <div class="showcase-grid" id="showcaseGrid">
+      <!-- Card 1: Shingeki -->
+      <div class="anime-card reveal">
+        <div class="anime-card-cover">
+          <img src="https://picsum.photos/seed/shingeki/400/560" alt="进击的巨人" loading="lazy">
+          <div class="anime-card-overlay"></div>
+          <div class="anime-card-top">
+            <span class="anime-card-badge">更新至 EP87</span>
+            <div class="anime-card-bookmark" title="收藏">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            </div>
+          </div>
+          <div class="anime-card-bottom">
+            <div class="anime-card-title">进击的巨人</div>
+            <div class="anime-card-meta">
+              <div class="anime-card-rating">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>9.4</span>
+              </div>
+              <div class="anime-card-tags">
+                <span class="anime-card-tag">动作</span>
+                <span class="anime-card-tag">奇幻</span>
+              </div>
+            </div>
+          </div>
+          <div class="anime-card-hover-play">
+            <div class="anime-card-play-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Card 2: Jujutsu -->
+      <div class="anime-card reveal">
+        <div class="anime-card-cover">
+          <img src="https://picsum.photos/seed/jujutsu/400/560" alt="咒术回战" loading="lazy">
+          <div class="anime-card-overlay"></div>
+          <div class="anime-card-top">
+            <span class="anime-card-badge">更新至 EP47</span>
+            <div class="anime-card-bookmark" title="收藏">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            </div>
+          </div>
+          <div class="anime-card-bottom">
+            <div class="anime-card-title">咒术回战</div>
+            <div class="anime-card-meta">
+              <div class="anime-card-rating">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>9.1</span>
+              </div>
+              <div class="anime-card-tags">
+                <span class="anime-card-tag">战斗</span>
+                <span class="anime-card-tag">校园</span>
+              </div>
+            </div>
+          </div>
+          <div class="anime-card-hover-play">
+            <div class="anime-card-play-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Card 3: Kimetsu -->
+      <div class="anime-card reveal">
+        <div class="anime-card-cover">
+          <img src="https://picsum.photos/seed/kimetsu/400/560" alt="鬼灭之刃" loading="lazy">
+          <div class="anime-card-overlay"></div>
+          <div class="anime-card-top">
+            <span class="anime-card-badge">更新至 EP63</span>
+            <div class="anime-card-bookmark" title="收藏">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            </div>
+          </div>
+          <div class="anime-card-bottom">
+            <div class="anime-card-title">鬼灭之刃</div>
+            <div class="anime-card-meta">
+              <div class="anime-card-rating">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>9.3</span>
+              </div>
+              <div class="anime-card-tags">
+                <span class="anime-card-tag">热血</span>
+                <span class="anime-card-tag">历史</span>
+              </div>
+            </div>
+          </div>
+          <div class="anime-card-hover-play">
+            <div class="anime-card-play-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Card 4: Frieren -->
+      <div class="anime-card reveal">
+        <div class="anime-card-cover">
+          <img src="https://picsum.photos/seed/frieren/400/560" alt="葬送的芙莉莲" loading="lazy">
+          <div class="anime-card-overlay"></div>
+          <div class="anime-card-top">
+            <span class="anime-card-badge">更新至 EP28</span>
+            <div class="anime-card-bookmark" title="收藏">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            </div>
+          </div>
+          <div class="anime-card-bottom">
+            <div class="anime-card-title">葬送的芙莉莲</div>
+            <div class="anime-card-meta">
+              <div class="anime-card-rating">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>9.6</span>
+              </div>
+              <div class="anime-card-tags">
+                <span class="anime-card-tag">奇幻</span>
+                <span class="anime-card-tag">治愈</span>
+              </div>
+            </div>
+          </div>
+          <div class="anime-card-hover-play">
+            <div class="anime-card-play-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Download / CTA -->
+<section class="download" id="download">
+  <div class="download-bg-bottom"></div>
+  <div class="download-glow"></div>
+  <div class="container">
+    <div class="download-content reveal">
+      <div class="download-icon-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <h2 class="download-title">开始探索动漫数据</h2>
+      <p class="download-subtitle">ManTa v2.0 已开放下载。即刻体验高效的动漫数据采集引擎。</p>
+      <div class="download-actions">
+        <a href="#" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          下载 APK
+        </a>
+        <a href="#" class="btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          源码
         </a>
       </div>
-
-      <a href="#download" class="navbar-cta-mobile">下载</a>
+      <p class="download-footer-note">当前仅支持 Android 8.0+ · 需授予网络权限</p>
     </div>
-  </nav>
+  </div>
+</section>
 
-  <!-- ========================================
-       HERO
-       ======================================== -->
-  <section class="hero" aria-label="首页横幅">
-    <div class="hero-bg-grid" aria-hidden="true"></div>
-    <div class="hero-glow-1" aria-hidden="true"></div>
-    <div class="hero-glow-2" aria-hidden="true"></div>
-
-    <div class="container">
-      <div class="hero-content">
-        <div class="hero-badge">
-          <svg class="hero-badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/>
-          </svg>
-          <span>v1.0 &middot; LuaAppx Pro 驱动</span>
-        </div>
-
-        <h1 class="hero-title">
-          你的动漫数据<br />
-          <span class="hero-title-gradient">采集引擎</span>
-        </h1>
-
-        <p class="hero-subtitle">
-          基于 LuaAppx Pro 框架，结合 XPath 与 Jsoup 精准匹配。<br />
-          从多源网站智能抓取动漫信息，让追番从未如此高效。
-        </p>
-
-        <div class="hero-actions">
-          <a href="#download" class="btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            下载 ManTa
-          </a>
-          <a href="#how-it-works" class="btn-secondary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"/>
-              <polyline points="8 6 2 12 8 18"/>
-            </svg>
-            工作原理
-          </a>
-        </div>
-
-        <div class="hero-tech-tags">
-          <span class="hero-tech-tag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-            </svg>
-            LuaJava
-          </span>
-          <span class="hero-tech-tag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3"/>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-            </svg>
-            XPath
-          </span>
-          <span class="hero-tech-tag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3"/>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-            </svg>
-            Jsoup
-          </span>
-          <span class="hero-tech-tag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/>
-            </svg>
-            LuaAppx Pro
-          </span>
-        </div>
-      </div>
+<!-- Footer Bottom -->
+<footer class="footer-bottom">
+  <div class="container">
+    <div class="footer-bottom-left">
+      <span>ManTa</span>
+      <span class="footer-bottom-divider">·</span>
+      <span>SoloSu &copy; 2026</span>
     </div>
-  </section>
-
-  <!-- ========================================
-       FEATURES
-       ======================================== -->
-  <section id="features" class="section features" aria-label="核心功能">
-    <div class="container">
-      <div class="features-header">
-        <p class="section-label reveal">Core Engine</p>
-        <h2 class="section-heading reveal">技术核心</h2>
-        <p class="section-subtitle reveal">每一行代码都为动漫数据而生。从底层解析到上层展示，ManTa 构建了一套完整的数据管线。</p>
-      </div>
-
-      <div class="features-grid">
-        <!-- Card 1: XPath -->
-        <div class="feature-card reveal">
-          <div class="feature-badge">稳定</div>
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"/>
-              <polyline points="8 6 2 12 8 18"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">XPath 精准匹配</h3>
-          <p class="feature-desc">基于 W3C XPath 标准，精确提取页面中的动漫标题、集数、封面等结构化数据，避免噪音干扰。</p>
-        </div>
-
-        <!-- Card 2: Jsoup -->
-        <div class="feature-card reveal">
-          <div class="feature-badge">高效</div>
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3"/>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">Jsoup 解析引擎</h3>
-          <p class="feature-desc">内置 Jsoup HTML 解析器，处理不规范标签、动态加载内容，保持稳定的数据收割能力。</p>
-        </div>
-
-        <!-- Card 3: LuaJava Bridge -->
-        <div class="feature-card reveal">
-          <div class="feature-badge">桥接</div>
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="16"/>
-              <line x1="8" y1="12" x2="16" y2="12"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">LuaJava 桥接</h3>
-          <p class="feature-desc">通过 luajava 框架在 Lua 脚本中直接调用 Java API，让 XPath 和 Jsoup 无缝融入 LuaAppx Pro 生态。</p>
-        </div>
-
-        <!-- Card 4: LuaAppx Pro -->
-        <div class="feature-card reveal">
-          <div class="feature-badge">框架</div>
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 17h16M4 12h16M4 7h16"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">LuaAppx Pro 驱动</h3>
-          <p class="feature-desc">基于 LuaAppx Pro 框架构建，具备跨平台兼容能力，轻量高效，无需额外运行时环境。</p>
-        </div>
-
-        <!-- Card 5: Official Configs (wide) -->
-        <div class="feature-card feature-card-wide reveal">
-          <div class="feature-badge">即用</div>
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18V5l12-2v13"/>
-              <circle cx="6" cy="18" r="3"/>
-              <circle cx="18" cy="16" r="3"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">官方预置配置</h3>
-          <p class="feature-desc">开箱即用，内置官方维护的站点配置规则。覆盖主流动漫信息来源，无需手动编写任何 XPath 表达式。</p>
-        </div>
-
-        <!-- Card 6: Custom Rules (in dev) -->
-        <div class="feature-card reveal">
-          <div class="feature-badge">开发中</div>
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20h9"/>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
-          </div>
-          <h3 class="feature-title">自定义规则支持</h3>
-          <p class="feature-desc">后续将开放用户自定义配置功能，支持灵活编写自己的 XPath 规则与数据映射配置。</p>
-        </div>
-      </div>
+    <div class="footer-bottom-right">
+      <a href="#" class="footer-social-link" title="GitHub" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+      </a>
+      <a href="#" class="footer-social-link" title="文档" aria-label="文档">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </a>
     </div>
-  </section>
+  </div>
+</footer>
 
-  <!-- ========================================
-       HOW IT WORKS (Pipeline)
-       ======================================== -->
-  <section id="how-it-works" class="section pipeline" aria-label="工作原理">
-    <div class="container">
-      <div class="pipeline-header">
-        <p class="section-label reveal">Pipeline</p>
-        <h2 class="section-heading reveal">数据管线</h2>
-        <p class="section-subtitle reveal">从发起请求到数据入库，每一步都可控、可追踪。</p>
-      </div>
+<script>
+/**
+ * ManTa Landing Page — Main JS
+ * SoloSu 2026
+ * Features: Navbar scroll, Intersection Observer reveal, smooth anchor, bookmark
+ */
+;(function () {
+  'use strict'
 
-      <div class="pipeline-steps">
-        <!-- Step 1 -->
-        <div class="pipeline-step reveal">
-          <div class="pipeline-dot">
-            <div class="pipeline-dot-circle"></div>
-            <div class="pipeline-dot-line"></div>
-          </div>
-          <div class="pipeline-spacer"></div>
-          <div class="pipeline-card">
-            <div class="pipeline-card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-              </svg>
-            </div>
-            <h3 class="pipeline-card-title">配置加载</h3>
-            <p class="pipeline-card-desc">加载站点配置规则，解析目标 URL 与字段映射关系，准备数据链路。</p>
-            <span class="pipeline-card-hint">ConfigLoader</span>
-          </div>
-        </div>
+  const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-        <!-- Step 2 -->
-        <div class="pipeline-step reveal">
-          <div class="pipeline-dot">
-            <div class="pipeline-dot-circle"></div>
-            <div class="pipeline-dot-line"></div>
-          </div>
-          <div class="pipeline-card">
-            <div class="pipeline-card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22 6 12 13 2 6"/>
-              </svg>
-            </div>
-            <h3 class="pipeline-card-title">HTTP 请求</h3>
-            <p class="pipeline-card-desc">通过 Jsoup 发起 HTTP 请求，处理重定向、超时和会话保持，获取目标页面 HTML。</p>
-            <span class="pipeline-card-hint">Jsoup.connect()</span>
-          </div>
-          <div class="pipeline-spacer"></div>
-        </div>
+  // Navbar scroll
+  const navbar = document.querySelector('.navbar')
+  function updateNavbar() {
+    if (window.scrollY > 30) navbar.classList.add('scrolled')
+    else navbar.classList.remove('scrolled')
+  }
+  window.addEventListener('scroll', updateNavbar, { passive: true })
+  updateNavbar()
 
-        <!-- Step 3 -->
-        <div class="pipeline-step reveal">
-          <div class="pipeline-dot">
-            <div class="pipeline-dot-circle"></div>
-            <div class="pipeline-dot-line"></div>
-          </div>
-          <div class="pipeline-spacer"></div>
-          <div class="pipeline-card">
-            <div class="pipeline-card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 10c0-4-3-7-9-7S3 6 3 10v2c0 4 3 7 9 7s9-3 9-7v-2z"/>
-                <line x1="3" y1="10" x2="3" y2="17"/>
-                <line x1="21" y1="10" x2="21" y2="17"/>
-                <line x1="10" y1="21" x2="14" y2="21"/>
-              </svg>
-            </div>
-            <h3 class="pipeline-card-title">XPath 解析</h3>
-            <p class="pipeline-card-desc">利用 XPath 表达式精确提取标题、集数、封面 URL、标签等字段，返回结构化数据对象。</p>
-            <span class="pipeline-card-hint">xpath.evaluate()</span>
-          </div>
-        </div>
+  // Scroll reveal
+  const revealElements = document.querySelectorAll('.reveal')
+  if (!isReducedMotion && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    )
+    revealElements.forEach((el) => observer.observe(el))
+  } else {
+    revealElements.forEach((el) => el.classList.add('visible'))
+  }
 
-        <!-- Step 4 -->
-        <div class="pipeline-step reveal">
-          <div class="pipeline-dot">
-            <div class="pipeline-dot-circle"></div>
-            <div class="pipeline-dot-line"></div>
-          </div>
-          <div class="pipeline-card">
-            <div class="pipeline-card-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <line x1="3" y1="9" x2="21" y2="9"/>
-                <line x1="9" y1="21" x2="9" y2="9"/>
-              </svg>
-            </div>
-            <h3 class="pipeline-card-title">数据存储</h3>
-            <p class="pipeline-card-desc">将解析后的数据写入本地数据库，支持增量更新与去重，确保同一内容不会重复采集。</p>
-            <span class="pipeline-card-hint">DBAdapter</span>
-          </div>
-          <div class="pipeline-spacer"></div>
-        </div>
-      </div>
-    </div>
-  </section>
+  // Smooth anchor
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', function (e) {
+      const targetId = this.getAttribute('href')
+      if (!targetId || targetId === '#') return
+      const target = document.querySelector(targetId)
+      if (!target) return
+      e.preventDefault()
+      const navHeight = navbar ? navbar.offsetHeight : 0
+      window.scrollTo({
+        top: target.getBoundingClientRect().top + window.pageYOffset - navHeight,
+        behavior: isReducedMotion ? 'auto' : 'smooth',
+      })
+    })
+  })
 
-  <!-- ========================================
-       SHOWCASE
-       ======================================== -->
-  <section id="showcase" class="section showcase" aria-label="动漫展示">
-    <div class="container">
-      <div class="showcase-header">
-        <p class="section-label reveal">Collection</p>
-        <h2 class="section-heading reveal">采集展示</h2>
-        <p class="section-subtitle reveal">ManTa 聚合引擎从多源站点采集的真实动漫数据，一目了然。</p>
-      </div>
+  // Bookmark
+  document.querySelectorAll('.anime-card-bookmark').forEach((btn) => {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation()
+      const card = this.closest('.anime-card')
+      const title = card?.querySelector('.anime-card-title')?.textContent || '未知'
+      console.log('[ManTa] Bookmark toggled: ' + title)
+    })
+  })
 
-      <div class="showcase-grid">
-        <!-- Anime Card 1: 进击的巨人 -->
-        <div class="anime-card reveal">
-          <div class="anime-card-cover">
-            <img src="https://picsum.photos/seed/shingeki/300/420" alt="进击的巨人" loading="lazy" />
-            <div class="anime-card-overlay"></div>
-            <div class="anime-card-top">
-              <span class="anime-card-badge">EP.87</span>
-              <button class="anime-card-bookmark" aria-label="收藏">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-                </svg>
-              </button>
-            </div>
-            <div class="anime-card-bottom">
-              <h3 class="anime-card-title">进击的巨人</h3>
-              <div class="anime-card-meta">
-                <div class="anime-card-rating">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <span>9.4</span>
-                </div>
-                <div class="anime-card-tags">
-                  <span class="anime-card-tag">动作</span>
-                  <span class="anime-card-tag">奇幻</span>
-                </div>
-              </div>
-            </div>
-            <div class="anime-card-hover-play">
-              <div class="anime-card-play-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
+  console.log('[ManTa] Landing page initialized.')
+})()
+</script>
 
-        <!-- Anime Card 2: 咒术回战 -->
-        <div class="anime-card reveal">
-          <div class="anime-card-cover">
-            <img src="https://picsum.photos/seed/jujutsu/300/420" alt="咒术回战" loading="lazy" />
-            <div class="anime-card-overlay"></div>
-            <div class="anime-card-top">
-              <span class="anime-card-badge">EP.47</span>
-              <button class="anime-card-bookmark" aria-label="收藏">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-                </svg>
-              </button>
-            </div>
-            <div class="anime-card-bottom">
-              <h3 class="anime-card-title">咒术回战</h3>
-              <div class="anime-card-meta">
-                <div class="anime-card-rating">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <span>9.1</span>
-                </div>
-                <div class="anime-card-tags">
-                  <span class="anime-card-tag">战斗</span>
-                  <span class="anime-card-tag">校园</span>
-                </div>
-              </div>
-            </div>
-            <div class="anime-card-hover-play">
-              <div class="anime-card-play-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Anime Card 3: 鬼灭之刃 -->
-        <div class="anime-card reveal">
-          <div class="anime-card-cover">
-            <img src="https://picsum.photos/seed/kimetsu/300/420" alt="鬼灭之刃" loading="lazy" />
-            <div class="anime-card-overlay"></div>
-            <div class="anime-card-top">
-              <span class="anime-card-badge">EP.63</span>
-              <button class="anime-card-bookmark" aria-label="收藏">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-                </svg>
-              </button>
-            </div>
-            <div class="anime-card-bottom">
-              <h3 class="anime-card-title">鬼灭之刃</h3>
-              <div class="anime-card-meta">
-                <div class="anime-card-rating">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <span>9.3</span>
-                </div>
-                <div class="anime-card-tags">
-                  <span class="anime-card-tag">热血</span>
-                  <span class="anime-card-tag">历史</span>
-                </div>
-              </div>
-            </div>
-            <div class="anime-card-hover-play">
-              <div class="anime-card-play-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Anime Card 4: 葬送的芙莉莲 -->
-        <div class="anime-card reveal">
-          <div class="anime-card-cover">
-            <img src="https://picsum.photos/seed/frieren/300/420" alt="葬送的芙莉莲" loading="lazy" />
-            <div class="anime-card-overlay"></div>
-            <div class="anime-card-top">
-              <span class="anime-card-badge">EP.28</span>
-              <button class="anime-card-bookmark" aria-label="收藏">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-                </svg>
-              </button>
-            </div>
-            <div class="anime-card-bottom">
-              <h3 class="anime-card-title">葬送的芙莉莲</h3>
-              <div class="anime-card-meta">
-                <div class="anime-card-rating">
-                  <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <span>9.6</span>
-                </div>
-                <div class="anime-card-tags">
-                  <span class="anime-card-tag">奇幻</span>
-                  <span class="anime-card-tag">治愈</span>
-                </div>
-              </div>
-            </div>
-            <div class="anime-card-hover-play">
-              <div class="anime-card-play-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================
-       DOWNLOAD / CTA
-       ======================================== -->
-  <section id="download" class="download" aria-label="下载 ManTa">
-    <div class="download-bg-bottom"></div>
-    <div class="download-glow" aria-hidden="true"></div>
-
-    <div class="container">
-      <div class="download-content reveal">
-        <div class="download-icon-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-        </div>
-
-        <h2 class="download-title">现在就下载 ManTa</h2>
-        <p class="download-subtitle">开源、轻量、纯正的动漫数据采集工具。从安装到采集，仅需三分钟。</p>
-
-        <div class="download-actions">
-          <a href="#" class="btn-primary" rel="noopener noreferrer">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            下载 APK
-          </a>
-          <a href="#" class="btn-secondary" rel="noopener noreferrer">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
-            </svg>
-            GitHub 源码
-          </a>
-        </div>
-
-        <p class="download-footer-note">
-          当前版本 v1.0 · 支持 Android 8.0+
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================
-       FOOTER
-       ======================================== -->
-  <footer class="footer-bottom" role="contentinfo">
-    <div class="container">
-      <div class="footer-bottom-left">
-        <span>ManTa</span>
-        <span class="footer-bottom-divider">·</span>
-        <span>SoloSu &copy; 2026</span>
-      </div>
-      <div class="footer-bottom-right">
-        <a href="#" class="footer-social-link" aria-label="GitHub" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
-        </a>
-        <a href="#" class="footer-social-link" aria-label="技术文档" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-            <polyline points="10 9 9 9 8 9"/>
-          </svg>
-        </a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Scripts -->
-  <script src="js/main.js"></script>
 </body>
 </html>

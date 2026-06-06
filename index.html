@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoloSu · 博客</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      --font-sans: 'Outfit', 'Noto Sans SC', system-ui, sans-serif;
+      --accent: #3b5e4a;
+      --accent-light: #5b8a6e;
+      --accent-dark: #2a4235;
+      --bg: #fafaf9;
+      --bg-card: #ffffff;
+      --bg-muted: #f5f2ed;
+      --bg-footer: #1a1c1e;
+      --text: #1c1a18;
+      --text-secondary: #6b6560;
+      --text-muted: #a09994;
+      --text-on-dark: #e8e4df;
+      --text-on-dark-muted: #9a9490;
+      --border: #e5e0db;
+      --radius: 12px;
+      --radius-sm: 6px;
+      --radius-full: 999px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow: 0 2px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.06);
+      --nav-height: 64px;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg: #141312;
+      --bg-card: #1e1c1b;
+      --bg-muted: #252322;
+      --bg-footer: #0d0c0b;
+      --text: #e0dcd8;
+      --text-secondary: #9e9792;
+      --text-muted: #6b6560;
+      --border: #2e2b29;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow: 0 2px 8px rgba(0,0,0,0.25);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--accent); color: #fff; }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    ul { list-style: none; }
+
+    .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+    /* Nav */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height);
+      background: rgba(250,250,249,0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border); z-index: 100;
+    }
+    [data-theme="dark"] .nav { background: rgba(20,19,18,0.85); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+    .nav-logo { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);
+      transition: color 0.2s; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1.5px; background: var(--accent);
+      transition: width 0.3s var(--ease-out);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .theme-toggle {
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius-sm); color: var(--text-secondary);
+      transition: all 0.2s; font-size: 1.1rem;
+    }
+    .theme-toggle:hover { background: var(--bg-muted); color: var(--text); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px;
+      border-radius: var(--radius-full); background: var(--accent); color: #fff;
+      font-size: 0.8125rem; font-weight: 500;
+      transition: all 0.3s var(--ease-out); white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,94,74,0.3); }
+    .nav-mobile-toggle { display: none; width: 36px; height: 36px; align-items: center; justify-content: center; color: var(--text); }
+    .nav-mobile-toggle svg { width: 22px; height: 22px; }
+    .nav-mobile-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 98; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .nav-mobile-overlay.active { opacity: 1; pointer-events: auto; }
+
+    /* Hero */
+    .hero { position: relative; min-height: 100dvh; display: flex; align-items: center; padding-top: var(--nav-height); overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .hero-bg-grid {
+      position: absolute; top: -50%; right: -20%; width: 80%; height: 120%;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px; opacity: 0.3; transform: rotate(12deg);
+      mask-image: radial-gradient(ellipse 80% 60% at 70% 50%, black 20%, transparent 70%);
+    }
+    .hero-bg-blob { position: absolute; top: 10%; right: 5%; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(59,94,74,0.08) 0%, transparent 70%); filter: blur(60px); }
+    .hero-content { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; width: 100%; padding: 80px 0 60px; }
+    .hero-text { opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s var(--ease-out) 0.2s forwards; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: var(--radius-full); background: var(--bg-muted); border: 1px solid var(--border); font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 24px; }
+    .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hero-title { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 20px; }
+    .hero-title em { font-style: normal; color: var(--accent); position: relative; }
+    .hero-title em::after { content: ''; position: absolute; bottom: 4px; left: 0; right: 0; height: 8px; background: var(--accent); opacity: 0.15; border-radius: 4px; }
+    .hero-sub { font-size: clamp(1rem, 1.5vw, 1.125rem); color: var(--text-secondary); line-height: 1.7; max-width: 480px; margin-bottom: 32px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 500; transition: all 0.3s var(--ease-out); white-space: nowrap; }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(59,94,74,0.25); }
+    .btn-primary:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59,94,74,0.3); }
+    .btn-secondary { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+    .hero-visual { opacity: 0; transform: translateY(20px); animation: fadeUp 0.8s var(--ease-out) 0.4s forwards; position: relative; display: flex; justify-content: center; align-items: center; }
+    .hero-avatar-frame { width: 320px; height: 320px; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); box-shadow: var(--shadow-lg); position: relative; background: var(--bg-muted); }
+    .hero-avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-avatar-ring { position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid var(--accent); opacity: 0.3; animation: ring-rotate 12s linear infinite; }
+    @keyframes ring-rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hero-avatar-dot { position: absolute; top: 20px; right: 30px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+    .hero-scroll-indicator { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0; animation: fadeUp 0.6s var(--ease-out) 0.8s forwards; }
+    .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--text-muted), transparent); animation: scroll-pulse 2s ease-in-out infinite; }
+    @keyframes scroll-pulse { 0%,100% { transform: scaleY(0.3); opacity: 0.5; } 50% { transform: scaleY(1); opacity: 1; } }
+
+    /* Sections */
+    .section { padding: 100px 0; }
+    .section-header { margin-bottom: 48px; }
+    .section-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .section-title { font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; }
+    .section-title span { color: var(--accent); }
+    .section-desc { color: var(--text-secondary); font-size: 1rem; max-width: 480px; margin-top: 12px; line-height: 1.7; }
+
+    /* Posts */
+    .posts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .post-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all 0.4s var(--ease-out); opacity: 0; transform: translateY(30px); }
+    .post-card.revealed { opacity: 1; transform: translateY(0); }
+    .post-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+    .card-img { width: 100%; height: 200px; object-fit: cover; background: var(--bg-muted); }
+    .card-body { padding: 24px; }
+    .card-meta { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; }
+    .card-meta-tag { padding: 2px 8px; border-radius: var(--radius-sm); background: var(--bg-muted); font-weight: 500; color: var(--accent); }
+    .card-title { font-size: 1.1rem; font-weight: 600; line-height: 1.4; margin-bottom: 8px; letter-spacing: -0.01em; transition: color 0.2s; }
+    .post-card:hover .card-title { color: var(--accent); }
+    .card-excerpt { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-cta { display: inline-flex; align-items: center; gap: 4px; margin-top: 16px; font-size: 0.8125rem; font-weight: 500; color: var(--accent); transition: gap 0.2s; }
+    .post-card:hover .card-cta { gap: 8px; }
+
+    /* About */
+    .about-section { background: var(--bg-muted); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .about-text { opacity: 0; transform: translateY(20px); }
+    .about-text.revealed { opacity: 1; transform: translateY(0); transition: all 0.6s var(--ease-out); }
+    .about-text p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 16px; font-size: 0.95rem; }
+    .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .stat-item { text-align: center; padding: 28px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.3s var(--ease-out); }
+    .stat-item:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--accent); }
+    .stat-number { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; margin-bottom: 6px; letter-spacing: -0.03em; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.03em; }
+
+    /* Skills */
+    .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .skill-item { padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); transition: all 0.3s var(--ease-out); opacity: 0; transform: translateY(20px); }
+    .skill-item.revealed { opacity: 1; transform: translateY(0); transition: all 0.5s var(--ease-out); }
+    .skill-item:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+    .skill-icon { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); background: var(--bg-muted); font-size: 1.2rem; margin-bottom: 14px; color: var(--accent); }
+    .skill-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+    .skill-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Contact */
+    .contact-section { position: relative; background: var(--bg-footer); color: var(--text-on-dark); overflow: hidden; }
+    .contact-section::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(59,94,74,0.12) 0%, transparent 70%); filter: blur(80px); }
+    .contact-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    .contact-title { font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 16px; }
+    .contact-desc { color: var(--text-on-dark-muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 28px; }
+    .contact-links { display: flex; gap: 12px; flex-wrap: wrap; }
+    .contact-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-full); background: rgba(255,255,255,0.06); color: var(--text-on-dark); font-size: 0.875rem; font-weight: 500; transition: all 0.3s var(--ease-out); border: 1px solid rgba(255,255,255,0.08); }
+    .contact-link:hover { background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+    .contact-form { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 32px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--text-on-dark-muted); margin-bottom: 6px; letter-spacing: 0.02em; }
+    .form-input { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-on-dark); font-size: 0.875rem; font-family: inherit; transition: border-color 0.2s; outline: none; }
+    .form-input:focus { border-color: var(--accent-light); background: rgba(255,255,255,0.08); }
+    .form-input::placeholder { color: var(--text-on-dark-muted); }
+    textarea.form-input { resize: vertical; min-height: 100px; }
+    .form-btn { width: 100%; padding: 12px; border-radius: var(--radius-sm); background: var(--accent); color: #fff; font-size: 0.875rem; font-weight: 600; transition: all 0.3s var(--ease-out); }
+    .form-btn:hover { background: var(--accent-light); transform: translateY(-1px); }
+
+    /* Footer */
+    .footer { background: var(--bg-footer); border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; }
+    .footer-copy { font-size: 0.8rem; color: var(--text-on-dark-muted); }
+    .footer-socials { display: flex; gap: 16px; }
+    .footer-socials a { color: var(--text-on-dark-muted); font-size: 0.8rem; transition: color 0.2s; }
+    .footer-socials a:hover { color: var(--text-on-dark); }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero-content { grid-template-columns: 1fr; gap: 40px; text-align: center; padding: 60px 0 40px; }
+      .hero-sub { margin: 0 auto 32px; }
+      .hero-actions { justify-content: center; }
+      .hero-visual { order: -1; }
+      .hero-avatar-frame { width: 200px; height: 200px; }
+      .hero-bg-grid { display: none; }
+      .posts-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+      .about-stats { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .stat-item { padding: 20px 12px; }
+      .stat-number { font-size: 1.5rem; }
+      .skills-grid { grid-template-columns: repeat(2, 1fr); }
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+      .contact-form { padding: 24px; }
+      .nav-links { display: none; }
+      .nav-mobile-toggle { display: flex; }
+      .nav-links.mobile-open { display: flex; flex-direction: column; position: fixed; top: var(--nav-height); left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 24px; gap: 20px; z-index: 99; align-items: flex-start; }
+      [data-theme="dark"] .nav-links.mobile-open { background: var(--bg); }
+    }
+    @media (max-width: 560px) {
+      .skills-grid { grid-template-columns: 1fr; }
+      .about-stats { grid-template-columns: 1fr; }
+      .stat-item { padding: 16px; }
+      .hero-avatar-frame { width: 160px; height: 160px; }
+      .container { padding: 0 16px; }
+      .section { padding: 60px 0; }
+      .contact-links { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Navbar ========== -->
+  <nav class="nav" role="navigation">
+    <div class="container nav-inner">
+      <a href="#" class="nav-logo">Solo<span>Su</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#posts">文章</a></li>
+        <li><a href="#about">关于</a></li>
+        <li><a href="#skills">技能</a></li>
+        <li><a href="#contact">联系</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="切换暗色模式">🌙</button>
+        <a href="#contact" class="nav-cta">与我联系</a>
+        <button class="nav-mobile-toggle" id="mobileToggle" aria-label="展开菜单">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- ========== Hero ========== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="hero-bg-grid"></div>
+      <div class="hero-bg-blob"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          思考 · 创造 · 成长
+        </div>
+        <h1 class="hero-title">
+          全栈开发者<br />
+          <em>SoloSu</em>
+        </h1>
+        <p class="hero-sub">
+          在代码与文字的交界处探索。记录技术思考、项目实践，和对产品设计的理解。
+        </p>
+        <div class="hero-actions">
+          <a href="#posts" class="btn btn-primary">浏览文章</a>
+          <a href="#about" class="btn btn-secondary">了解更多</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-avatar-frame">
+          <img src="https://picsum.photos/seed/solosu/400/400" alt="SoloSu" loading="lazy" />
+        </div>
+        <div class="hero-avatar-ring"></div>
+        <div class="hero-avatar-dot"></div>
+      </div>
+    </div>
+    <div class="hero-scroll-indicator">
+      <span>向下滚动</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ========== Posts ========== -->
+  <section class="section" id="posts">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">精选文章</p>
+        <h2 class="section-title">最近写下的<span>文字</span></h2>
+        <p class="section-desc">技术、设计与产品思考的记录与分享。</p>
+      </div>
+      <div class="posts-grid">
+        <article class="post-card">
+          <img class="card-img" src="https://picsum.photos/seed/solosu-1/600/400" alt="文章封面" loading="lazy" />
+          <div class="card-body">
+            <div class="card-meta">
+              <span>2025.02.18</span>
+              <span class="card-meta-tag">前端</span>
+            </div>
+            <h3 class="card-title">从零搭建现代 React 项目：2025 最佳实践</h3>
+            <p class="card-excerpt">当我们在 2025 年重新审视前端工程化，从模块联邦到 Bun 运行时，哪些工具真正值得投入？</p>
+            <a href="#" class="card-cta">阅读全文 →</a>
+          </div>
+        </article>
+        <article class="post-card">
+          <img class="card-img" src="https://picsum.photos/seed/solosu-2/600/400" alt="文章封面" loading="lazy" />
+          <div class="card-body">
+            <div class="card-meta">
+              <span>2025.01.25</span>
+              <span class="card-meta-tag">设计</span>
+            </div>
+            <h3 class="card-title">设计师思维的开发者视角：从结构到体验</h3>
+            <p class="card-excerpt">好的代码无法替代好的体验。一个后端出身的人，如何逐步建立对交互设计的敏感度。</p>
+            <a href="#" class="card-cta">阅读全文 →</a>
+          </div>
+        </article>
+        <article class="post-card">
+          <img class="card-img" src="https://picsum.photos/seed/solosu-3/600/400" alt="文章封面" loading="lazy" />
+          <div class="card-body">
+            <div class="card-meta">
+              <span>2024.12.10</span>
+              <span class="card-meta-tag">全栈</span>
+            </div>
+            <h3 class="card-title">一个 AI 辅助开发工具的实际落地经验</h3>
+            <p class="card-excerpt">将 LLM 集成到开发工作流中的实践总结——不只是写 prompt，而是构建可复用的工程管线。</p>
+            <a href="#" class="card-cta">阅读全文 →</a>
+          </div>
+        </article>
+        <article class="post-card">
+          <img class="card-img" src="https://picsum.photos/seed/solosu-4/600/400" alt="文章封面" loading="lazy" />
+          <div class="card-body">
+            <div class="card-meta">
+              <span>2024.11.03</span>
+              <span class="card-meta-tag">产品</span>
+            </div>
+            <h3 class="card-title">最小可行产品之后：产品迭代中的取舍逻辑</h3>
+            <p class="card-excerpt">MVP 只是起点。当功能堆积的压力袭来，如何用优先级矩阵做出真正有用的决策。</p>
+            <a href="#" class="card-cta">阅读全文 →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== About ========== -->
+  <section class="about-section section" id="about">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">关于我</p>
+        <h2 class="section-title"><span>SoloSu</span> 是谁</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-text" data-reveal>
+          <p>
+            你好，我是 SoloSu，一名全栈开发者，拥有 5 年以上的 Web 开发与产品设计经验。
+            我在快节奏的创业环境中成长，从单体应用到微服务，从 jQuery 到 React、Vue、Svelte，
+            经历了多次技术范式转换。
+          </p>
+          <p>
+            我相信好的技术产品源于对用户需求的理解和对细节的坚持。
+            在这片博客里，我会分享技术实战、设计思考与产品方法论，
+            也记录那些从失败中获得的真正有价值的教训。
+          </p>
+          <p>
+            目前专注于 AI 辅助开发工具的构建，以及如何让前端设计在保持美感的同时
+            兼顾性能与可维护性。业余时间喜欢阅读、摄影和尝试新的开发者工具。
+          </p>
+        </div>
+        <div>
+          <div class="about-stats">
+            <div class="stat-item">
+              <div class="stat-number">5+</div>
+              <div class="stat-label">年开发经验</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">30+</div>
+              <div class="stat-label">交付项目</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">48+</div>
+              <div class="stat-label">技术文章</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Skills ========== -->
+  <section class="section" id="skills">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">专业能力</p>
+        <h2 class="section-title">技术与<span>工具</span>栈</h2>
+        <p class="section-desc">日常工作中高频使用的技术领域。</p>
+      </div>
+      <div class="skills-grid">
+        <div class="skill-item" data-reveal>
+          <div class="skill-icon">⚛️</div>
+          <h3 class="skill-name">React / Next.js</h3>
+          <p class="skill-desc">服务端组件、App Router、React Query、Zustand 状态管理</p>
+        </div>
+        <div class="skill-item" data-reveal>
+          <div class="skill-icon">🟢</div>
+          <h3 class="skill-name">Vue / Nuxt</h3>
+          <p class="skill-desc">组合式 API、Pinia、Nuxt 模块系统、SSR/SSG</p>
+        </div>
+        <div class="skill-item" data-reveal>
+          <div class="skill-icon">🔷</div>
+          <h3 class="skill-name">TypeScript</h3>
+          <p class="skill-desc">类型体操、泛型设计、全类型安全 API 层</p>
+        </div>
+        <div class="skill-item" data-reveal>
+          <div class="skill-icon">🎨</div>
+          <h3 class="skill-name">UI / 设计系统</h3>
+          <p class="skill-desc">Tailwind CSS、Figma 协作、组件库构建、设计 Token 体系</p>
+        </div>
+        <div class="skill-item" data-reveal>
+          <div class="skill-icon">☁️</div>
+          <h3 class="skill-name">后端 / 云服务</h3>
+          <p class="skill-desc">Node.js、PostgreSQL、Redis、Docker、Serverless</p>
+        </div>
+        <div class="skill-item" data-reveal>
+          <div class="skill-icon">🤖</div>
+          <h3 class="skill-name">AI 集成</h3>
+          <p class="skill-desc">LLM API 封装、RAG 管线、AI Agent 工作流设计</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Contact ========== -->
+  <section class="contact-section section" id="contact">
+    <div class="container">
+      <div class="contact-grid">
+        <div>
+          <h2 class="contact-title">一起聊聊</h2>
+          <p class="contact-desc">
+            如果你有项目合作意向，或者想聊聊技术、设计与产品，欢迎随时联系。
+            我会在 24 小时内回复。
+          </p>
+          <div class="contact-links">
+            <a href="mailto:hello@solosu.dev" class="contact-link">📧 hello@solosu.dev</a>
+            <a href="#" class="contact-link">🐦 推特</a>
+            <a href="#" class="contact-link">💻 GitHub</a>
+            <a href="#" class="contact-link">🔗 LinkedIn</a>
+          </div>
+        </div>
+        <form class="contact-form" onsubmit="event.preventDefault(); alert('感谢留言！我会尽快回复。');">
+          <div class="form-group">
+            <label class="form-label" for="name">你的名字</label>
+            <input class="form-input" id="name" type="text" placeholder="例如：张三" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">邮箱地址</label>
+            <input class="form-input" id="email" type="email" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">想说的话</label>
+            <textarea class="form-input" id="message" placeholder="写下你想交流的内容……" required></textarea>
+          </div>
+          <button class="form-btn" type="submit">发送消息 →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== Footer ========== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p class="footer-copy">&copy; 2025 SoloSu · 用 ❤️ 和代码构建</p>
+      <div class="footer-socials">
+        <a href="#">GitHub</a>
+        <a href="#">推特</a>
+        <a href="#">RSS</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== Scripts ========== -->
+  <script>
+    /* ---- 暗色模式 ---- */
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    themeToggle.addEventListener('click', () => {
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    /* ---- 移动端菜单 ---- */
+    const mobileToggle = document.getElementById('mobileToggle');
+    const navLinks = document.getElementById('navLinks');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+
+    function closeMobileMenu() {
+      navLinks.classList.remove('mobile-open');
+      mobileOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    mobileToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('mobile-open');
+      mobileOverlay.classList.toggle('active');
+      document.body.style.overflow = navLinks.classList.contains('mobile-open') ? 'hidden' : '';
+    });
+
+    mobileOverlay.addEventListener('click', closeMobileMenu);
+    navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileMenu));
+
+    /* ---- 滚动入场动画 ---- */
+    const revealEls = document.querySelectorAll('[data-reveal]');
+    const postCards = document.querySelectorAll('.post-card');
+    const allObserved = [...revealEls, ...postCards];
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              entry.target.classList.add('revealed');
+            }, (entry.target.dataset.revealDelay || index * 80));
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+      allObserved.forEach(el => observer.observe(el));
+    } else {
+      allObserved.forEach(el => el.classList.add('revealed'));
+    }
+
+    /* ---- 导航栏滚动阴影 ---- */
+    const nav = document.querySelector('.nav');
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      nav.style.boxShadow = y > 20 ? '0 1px 6px rgba(0,0,0,0.06)' : 'none';
+      lastScroll = y;
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
